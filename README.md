@@ -5,7 +5,7 @@
 chmod +x ./start.sh
 sh start.sh
 ```
-## table of contents
+## Table of contents
 ### 一、Graphics Basis
 1. html + css; svg;
 2. canvas and hierarchy;
