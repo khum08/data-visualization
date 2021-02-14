@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="../lib/Vector2D.js"></script>
+    <canvas id="canvas" width="512" height="512"></canvas>
+    <script>
+        function start() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.translate(0, canvas.height);
+
+            ctx.scale(1, -1);
+            ctx.lineCap = 'round';
+            draw(ctx, drawRegularShape(3, 128, 192, 50));
+            draw(ctx, drawRegularShape(4, 128, 64, 50));
+            draw(ctx, drawRegularShape(6, 256, 192, 50));
+            draw(ctx, drawRegularShape(20, 256, 64, 50));
+            draw(ctx, drawEllipse(400, 400, 80, 40));
+            draw(ctx, drawEllipse(400, 200, 40, 80));
+        }
+
+        function randomColor() {
+            const getRandom = () => {
+                return Math.random() * 255;
+            }
+            return `rgb(${getRandom()}, ${getRandom()}, ${getRandom()})`;
+        }
+
+        function draw(ctx, ret) {
+            console.log(ret);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = randomColor();
+            ctx.beginPath();
+            let start = ret[0];
+            ctx.moveTo(start.x, start.y);
+            for (let i = 1; i < ret.length; i++) {
+                let v = ret[i];
+                ctx.lineTo(v.x, v.y);
+                start = v;
+            }
+            ctx.stroke();
+        }
+
+        function drawEllipse(x0, y0, radiusX, radiusY, startAng = 0, endAng = 2 * Math.PI, segments = 30) {
+            const TAU = Math.PI * 2;
+            const EPSILON = 1e-6;
+            let ret = [];
+        
+            let s = Math.round((endAng - startAng) / TAU * segments);
+            for (let i = 0; i <= s; i++) {
+                const x = x0 + radiusX * Math.cos(startAng + i * TAU / segments);
+                const y = y0 + radiusY * Math.sin(startAng + i * TAU / segments);
+                ret.push(new Vector2D(x, y));
+            }
+
+            return ret;
+        }
+
+        function drawRegularShape(edges = 3, x, y, step) {
+            const ret = [];
+            const delta = 2 * Math.PI / edges;
+
+            let start = new Vector2D(x, y);
+            let length = step * Math.sin (Math.PI / edges) * 2;
+            const dir = new Vector2D(length, 0);
+            ret.push(start);
+            for(let i = 0; i < edges; i++) {
+                start = start.copy().add(dir.rotate(delta));
+                ret.push(start);
+            }
+            return ret;
+        }
+
+        start();
+    </script>
+    
+</body>
+</html>
