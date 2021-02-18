@@ -9,11 +9,11 @@ sh start.sh
 ```
 ## Table of contents
 ### 一、Graphics Basic
-1. html + css; svg;
-2. canvas and hierarchy;
-3. svg;
+1. Html + Css & SVG;
+2. Canvas and Hierarchy;
+3. SVG;
 4. WebGL;
 
 ### 二、Math
-1. point and line;
-2. curves;
+1. Point and Line;
+2. Curves;
