@@ -74,7 +74,7 @@
                 const t = min * (1 - s) + max * s;
                 // 圆锥
 
-                const x = x0 + 2 * p * Math.pow(t, 2);
+                const x = x0 + 2 * p * t ** 2;
                 const y = y0 + 2 * p * t;
                 ret.push(new Vector2D(x, y));
             }
