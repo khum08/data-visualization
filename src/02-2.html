@@ -7,6 +7,7 @@
 </head>
 <body>
     <script src="../lib/Vector2D.js"></script>
+    <script src="../lib/CanvasUtils.js"></script>
     <canvas id="canvas2" width="512" height="512"></canvas>
     <canvas id="canvas3" width="512" height="512"></canvas>
     <canvas id="canvas" width="512" height="512"></canvas>
@@ -28,27 +29,6 @@
 
         }
 
-        function randomColor() {
-            const getRandom = () => {
-                return Math.random() * 255;
-            }
-            return `rgb(${getRandom()}, ${getRandom()}, ${getRandom()})`;
-        }
-
-        function draw(ctx, ret) {
-            console.log(ret);
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = randomColor();
-            ctx.beginPath();
-            let start = ret[0];
-            ctx.moveTo(start.x, start.y);
-            for (let i = 1; i < ret.length; i++) {
-                let v = ret[i];
-                ctx.lineTo(v.x, v.y);
-                start = v;
-            }
-            ctx.stroke();
-        }
 
         function drawEllipse(x0, y0, radiusX, radiusY, startAng = 0, endAng = 2 * Math.PI, segments = 30) {
             const TAU = Math.PI * 2;
@@ -172,13 +152,6 @@
             }
         }
 
-        function drawAxis(isX = true) {
-            const max = 2 ** 10;
-            const points = [];
-            points.push(new Vector2D(isX ? -max : 0, isX ? 0 : -max));
-            points.push(new Vector2D(isX ? max : 0, isX ? 0 : max));
-            return points;
-        }
 
         function parametric(xFunc, yFunc) {
             return function(start, end, seg = 100, ...args) {

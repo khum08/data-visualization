@@ -17,3 +17,4 @@ sh start.sh
 ### 二、Math
 1. Point and Line;
 2. Curves;
+3. Triangulation
