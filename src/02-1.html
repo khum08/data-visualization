@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math1</title>
+    <style>
+    </style>
+</head>
+
+<body>
+    <script src="../lib/rough.js"></script>
+    <script src="../lib/Vector2D.js"></script>
+    <canvas id="canvas1" width="512" height="256"></canvas>
+    <canvas id="canvas2" width="512" height="300"></canvas>
+    <br/>
+    <canvas id="canvas3" width="512" height="300"></canvas>
+
+    <script>
+        function start() {
+            changeCoordinates();
+            drawTree();
+            drawTree2();
+        }
+
+        function changeCoordinates() {
+            const rc = rough.canvas(document.querySelector("#canvas1"));
+
+            const ctx = rc.ctx;
+            ctx.translate(256, 256);
+            ctx.scale(1, -1);
+
+
+            const hillOpts = {
+                roughness: 2.8,
+                strokeWidth: 2,
+                fill: 'blue'
+            };
+            rc.path('M-180 0L-80 100L20 0', hillOpts);
+            rc.path('M-20 0L80 100L180 0', hillOpts);
+
+            const sunOpts = {
+                stroke: 'red',
+                strokeWidth: 4,
+                fill: 'rgba(255, 255, 0, 0.4',
+                fillStyle: 'solid'
+            };
+            rc.circle(0, 150, 105, sunOpts);
+        }
+
+        function drawTree() {
+            const canvas = document.querySelector("#canvas2");
+            const ctx = canvas.getContext('2d');
+            ctx.translate(0, canvas.height);
+
+            ctx.scale(1, -1);
+            ctx.lineCap = 'round';
+
+            function drawBranch(ctx, v0, length, thickness, dir, bias) {
+                const v = new Vector2D(0, 1).rotate(dir).scale(length);
+                const v1 = v0.copy().add(v);
+                ctx.lineWidth = thickness;
+
+                ctx.beginPath();
+                ctx.moveTo(v0.x, v0.y);
+                ctx.lineTo(v1.x, v1.y);
+                ctx.stroke();
+
+                if (thickness > 2) {
+                    const left = dir + 0.2;
+                    drawBranch(ctx, v1, length * 0.9, thickness * 0.8, left, bias * 0.9);
+                    const right = dir - 0.2;
+                    drawBranch(ctx, v1, length * 0.9, thickness * 0.8, right, bias * 0.9);
+                }
+            }
+            const v0 = new Vector2D(256, 0);
+            drawBranch(ctx, v0, 50, 8, 0, 3)
+        }
+
+        function drawTree2() {
+            const canvas = document.querySelector("#canvas3");
+            const ctx = canvas.getContext('2d');
+            ctx.translate(0, canvas.height);
+
+            ctx.scale(1, -1);
+            ctx.lineCap = 'round';
+
+            function drawBranch(ctx, v0, length, thickness, dir, bias) {
+                const v = new Vector2D(0, 1).rotate(dir).scale(length);
+                const v1 = v0.copy().add(v);
+                ctx.lineWidth = thickness;
+
+                ctx.beginPath();
+                ctx.moveTo(v0.x, v0.y);
+                ctx.lineTo(v1.x, v1.y);
+                ctx.stroke();
+
+                if (thickness > 2) {
+                    const left = dir + 0.2 + (Math.random() - 0.5);
+                    // const left = (dir + 0.2) + bias * (Math.random() - 0.5);
+                    drawBranch(ctx, v1, length * 0.8 + Math.random() * length * 0.1, thickness * 0.8, left, bias * 0.9);
+                    const right = dir - 0.2 + (Math.random() - 0.5);
+                    // const right = (dir - 0.2) + bias * (Math.random() - 0.5);
+                    drawBranch(ctx, v1, length * 0.8 + Math.random()* length * 0.1, thickness * 0.8, right, bias * 0.9);
+                }
+
+                if(thickness < 5 && Math.random() < 0.3) {
+                    ctx.save();
+                    ctx.strokeStyle = '#c72c35';
+                    const th = Math.random() * 6 + 3;
+                    ctx.lineWidth = th;
+                    ctx.beginPath();
+                    ctx.moveTo(v1.x, v1.y);
+                    ctx.lineTo(v1.x, v1.y - 2);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+            const v0 = new Vector2D(256, 0);
+            drawBranch(ctx, v0, 50, 10, 0, 3)
+        }
+        start();
+
+    </script>
+
+</body>
+
+</html>
