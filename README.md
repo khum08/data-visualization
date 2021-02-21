@@ -2,7 +2,7 @@
 
 [HomePage](https://khum08.github.io/data-visualization/)
 
-<img src="./screenshot/echarts-gl.jpg" width="500" />
+<img src="./screenshot/splash.jpg" width="500" />
 
 
 ## Table of contents
