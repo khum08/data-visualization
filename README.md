@@ -1,7 +1,5 @@
 # Data-Visualization
 
-[HomePage](https://khum08.github.io/data-visualization/)
-
 <img src="./screenshot/splash.jpg" width="700" />
 
 
