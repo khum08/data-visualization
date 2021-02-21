@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
     <canvas id="canvas" width="512" height="512"></canvas>
     <canvas id="canvas2" width="512" height="512"></canvas>
+    <canvas id="canvas3" width="512" height="512"></canvas>
     <script src="../lib/Vector2D.js"></script>
     <script src="../lib/CanvasUtils.js"></script>
+    <script src="../lib/earcut.js"></script>
+    <script src="../lib/glUtils.js"></script>
     <script>
         function start() {
             const canvas = document.getElementById('canvas');
@@ -20,13 +25,13 @@
             // ctx.fillRect(0, 0, canvas.width, canvas.height);
             draw(ctx, drawAxis(false));
             draw(ctx, drawAxis());
-            
+
             draw(ctx, drawStar(), false);
         }
 
         function drawStar() {
             const points = [new Vector2D(-50, 50)];
-            for(let i = 1; i < 5; i++) {
+            for (let i = 1; i < 5; i++) {
                 const p = points[0].copy().rotate(Math.PI * 0.4 * i);
                 points.push(p);
             }
@@ -43,16 +48,146 @@
             return star;
         }
 
+        const V_SHADER_DATA = `
+            attribute vec4 a_Position;
+            void main(void) {
+                gl_Position = a_Position;
+            }
+        `;
+
+        const F_SHADER_DATA = `
+            void main(void) {
+                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+            }
+        `;
+
         function start2() {
-            const canvas = document.createElement('canvas2');
-            
+            const vertices = [
+                [-0.8, 0.5],
+                [-0.4, 0.3],
+                [-0.25, 0.71],
+                [-0.1, 0.56],
+                [-0.1, 0.13],
+                [0.4, 0.21],
+                [0, -0.6],
+                [-0.3, -0.3],
+                [-0.6, -0.3],
+                [-0.45, 0.0]
+            ];
+
+            // draw using webgl
+            const canvas = document.getElementById('canvas2');
+            const gl = canvas.getContext('webgl');
+            gl.clearColor(0.5, 0.5, 0.5, 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            drawInWebgl(gl, vertices);
+
+
+            // draw using canvas2d
+            const canvas2 = document.getElementById('canvas3');
+            const ctx = canvas2.getContext('2d');
+            drawInCanvas(ctx, vertices);
+
+        }
+
+        function drawInCanvas(ctx, vertices) {
+            const halfWidth = ctx.canvas.width / 2;
+            const halfHeight = ctx.canvas.height / 2;
+            ctx.translate(halfWidth, halfHeight);
+            ctx.scale(1, -1);
+
+            draw(ctx, drawAxis(false));
+            draw(ctx, drawAxis());
+
+            const cells = earcut(vertices.flat());
+        
+            const points = [];
+            for (var i = 0; i < vertices.length; i++) {
+                const p = vertices[i];
+                points.push(new Vector2D(p[0] * halfWidth, p[1] * halfHeight));
+            }
+            draw(ctx, points, false, 'red');
+
+            const {left, top, width, height} = ctx.canvas.getBoundingClientRect();
+
+            ctx.canvas.addEventListener('mousemove', function(e) {
+                const {x, y} = e;
+                const offsetX = x - left - width / 2;
+                const offsetY = -(y - top - height / 2);
+                const curPoint = new Vector2D(offsetX, offsetY);
+
+                // console.log(offsetX, offsetY);
+                
+                // ctx.fillStyle = 'green';
+                // ctx.beginPath();
+                // ctx.moveTo(offsetX, offsetY);
+                // ctx.lineTo(offsetX, offsetY + 1);
+                // ctx.stroke();
+
+                if(isPointInPath({
+                    vertices: points,
+                    cells
+                }, curPoint)) {
+                    draw(ctx, points, false, 'blue');
+                } else {
+                    draw(ctx, points, false, 'red');
+                }
+            });
+        }
+
+        function isPointInPath({vertices, cells}, point) {
+            let isIn = false;
+            for (let i = 0; i < cells.length; i += 3) {
+                let p1 = vertices[cells[i]];
+                let p2 = vertices[cells[i + 1]];
+                let p3 = vertices[cells[i + 2]];
+                isIn = inTriangle(p1, p2, p3, point);
+                // Quick reject.
+                if (isIn) {
+                    break;
+                }
+            }
+            // console.log('isIn:', isIn);
+            return isIn;
         }
 
 
 
+        function drawInWebgl(gl, vertices) {
+            const points = vertices.flat();
+            const triangles = earcut(points);
+
+            const position = new Float32Array(points);
+            const cells = new Uint16Array(triangles);
+
+            const vShader = createShader(gl, gl.VERTEX_SHADER, V_SHADER_DATA);
+            const fShader = createShader(gl, gl.FRAGMENT_SHADER, F_SHADER_DATA);
+
+            const program = initProgram(gl, vShader, fShader);
+
+            const pointsBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, pointsBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, position, gl.STATIC_DRAW);
+
+            const cellsBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cellsBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cells, gl.STATIC_DRAW);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, pointsBuffer);
+            const vPosition = gl.getAttribLocation(program, 'a_Position');
+            gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(vPosition);
+
+
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            // gl.drawElements(gl.TRIANGLES, cells.length, gl.UNSIGNED_SHORT, 0);
+            gl.drawElements(gl.LINE_STRIP, cells.length, gl.UNSIGNED_SHORT, 0);
+        }
 
         start();
+        start2();
     </script>
 
 </body>
+
 </html>
