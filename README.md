@@ -1,6 +1,10 @@
 # Data-Visualization
 
 [HomePage](https://khum08.github.io/data-visualization/)
+
+<img src="./screenshot/echarts-gl.jpg" width="500" />
+
+
 ## Table of contents
 ### 一、Graphics Basic
 1. [Html + Css & SVG](https://khum08.github.io/data-visualization/src/01-1.html)
