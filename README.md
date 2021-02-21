@@ -1,14 +1,6 @@
 # Data-Visualization
 
-data-visualization.
-
 [HomePage](https://khum08.github.io/data-visualization/)
-
-## Getting Started
-```
-chmod +x ./start.sh
-sh start.sh
-```
 ## Table of contents
 ### 一、Graphics Basic
 1. [Html + Css & SVG](https://khum08.github.io/data-visualization/src/01-1.html)
