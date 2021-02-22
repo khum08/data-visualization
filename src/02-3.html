@@ -9,9 +9,9 @@
 </head>
 
 <body>
+    <canvas id="canvas3" width="512" height="512"></canvas>
     <canvas id="canvas" width="512" height="512"></canvas>
     <canvas id="canvas2" width="512" height="512"></canvas>
-    <canvas id="canvas3" width="512" height="512"></canvas>
     <script src="../lib/Vector2D.js"></script>
     <script src="../lib/CanvasUtils.js"></script>
     <script src="../lib/earcut.js"></script>
@@ -118,11 +118,11 @@
 
                 // console.log(offsetX, offsetY);
                 
-                // ctx.fillStyle = 'green';
-                // ctx.beginPath();
-                // ctx.moveTo(offsetX, offsetY);
-                // ctx.lineTo(offsetX, offsetY + 1);
-                // ctx.stroke();
+                ctx.strokeStyle = 'green';
+                ctx.beginPath();
+                ctx.moveTo(offsetX, offsetY);
+                ctx.lineTo(offsetX, offsetY + 1);
+                ctx.stroke();
 
                 if(isPointInPath({
                     vertices: points,
