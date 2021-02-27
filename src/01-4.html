@@ -43,11 +43,11 @@
         `;
 
         // create Shader;
-        const vShader = createShader(gl.VERTEX_SHADER, V_SHADER_DATA);
-        const fShader = createShader(gl.FRAGMENT_SHADER, F_SHADER_DATA);
+        const vShader = createShader(gl, gl.VERTEX_SHADER, V_SHADER_DATA);
+        const fShader = createShader(gl, gl.FRAGMENT_SHADER, F_SHADER_DATA);
         
         // init program;
-        const program = initProgram(vShader, fShader);
+        const program = initProgram(gl, vShader, fShader);
 
         // pass atrribute to shader
         let data = new Float32Array(362 * 3);
