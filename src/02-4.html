@@ -12,52 +12,78 @@
     <script>
 
         const V_SHADER_DATA = `
-            attribute vec3 a_Position;
-            attribute vec4 a_Color;
+            attribute vec3 a_position;
+            attribute vec4 a_color;
 
-            unifrom float u_Scale;
-            varying vec4 v_Color;
+            uniform float u_rotation;
+            uniform float u_scale;
+            uniform float u_time;
+            uniform float u_duration;
+            uniform vec4 u_color;
+
+            uniform vec2 u_dir;
+
+            varying vec4 v_color;
+            varying float vp;
+        
             void main(void) {
-                mat3 translateMatrix = mat3(
-                    
-                );
-                mat3 rotateMatrix = mat3(
-                    cos(rad), sin(rad), 0,
-                    -sin(rad), cos(rad), 0,
-                    0, 0, 1.0
+
+                float p = min(1.0, u_time / u_duration);
+                float rad = u_rotation + 3.14 * 10.0 * p;
+
+                float scale = u_scale * p * (2.0 - p);
+
+                vec2 offset = 2.0 * u_dir * p * p;
+
+                mat4 translateMatrix = mat4(
+                    1.0, 0.0, 0.0, 0.0,
+                    0.0, 1.0, 0.0, 0.0,
+                    0.0, 0.0, 1.0, 0.0,
+                    offset.x, offset.y, 0.0, 1.0
                 );
 
-                mat3 scaleMatrix = mat3(
-                    scale, 0, 0,
-                    0, scale, 0,
-                    0, 0, 1.0
+                mat4 rotateMatrix = mat4(
+                    cos(rad), sin(rad), 0.0, 0.0,
+                    -sin(rad), cos(rad), 0.0, 0.0,
+                    0.0, 0.0, 1.0, 0.0,
+                    0.0, 0.0, 0.0, 1.0
                 );
 
-                vec3 pos = translateMatrix * rotateMatrix * scaleMatrix * a_Position;
+                mat4 scaleMatrix = mat4(
+                    scale, 0.0, 0.0, 0.0,
+                    0.0, scale, 0.0, 0.0,
+                    0.0, 0.0, 1.0, 0.0,
+                    0.0, 0.0, 0.0, 1.0
+                );
+                vec4 pos = translateMatrix * rotateMatrix * scaleMatrix * vec4(a_position, 1.0);
 
-                gl_Position = vec4(pos, 1.0);
-                v_Color = a_Color;
+                gl_Position = pos;
+                // v_color = vec4(offset.x, offset.y, offset.x, 1.0);
+                v_color = u_color;
+                vp = p;
             }
         `;
 
         const F_SHADER_DATA = `
             precision mediump float;
-            varying vec4 v_Color;
+            varying vec4 v_color;
+            varying float vp;
             void main(void) {
-                gl_FragColor = v_Color;
+                gl_FragColor.xyz = v_color.xyz;
+                gl_FragColor.a = 1.0 - vp;
             }
         `;
-
+        let gl;
         function start() {
             const canvas = document.getElementById('canvas');
-            const gl = canvas.getContext('webgl');
+            gl = canvas.getContext('webgl');
             gl.clearColor(1.0, 1.0, 1.0, 0.0);
             gl.clear(gl.COLOR_BUFFER_BIT);
 
             const vertices = new Float32Array([
-                0, 0.5, 0,
-                -0.5, -0.5, 0,
-                0.5, -0.5, 0
+                -1, -1, 0,
+                0, 1, 0,
+                1, -1, 0
             ]);
 
             const colors = new Float32Array([
@@ -73,28 +99,81 @@
             const vBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+            const aPosition = gl.getAttribLocation(program, 'a_position');
+            gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(aPosition);
 
             const cBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-            const aPosition = gl.getAttribLocation(program, 'a_Position');
-            gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(aPosition);
-
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
-            const aColor = gl.getAttribLocation(program, 'a_Color');
+            const aColor = gl.getAttribLocation(program, 'a_color');
             gl.vertexAttribPointer(aColor, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(aColor);
 
-            gl.drawArrays(gl.TRIANGLES, 0, 3);
+            // gl.drawArrays(gl.TRIANGLES, 0, 3);
+            update();
         }
 
-        function randomTriangles() {
-            const u_color = [Math.random(), Math.random(), Math.random(), 1.0];
-            const u_rotation = Math.random() * Math.PI;
+        let triangles = [randomTriangle()];
+        function update(t) {
+            for(let i = 0; i < 1; i++) {
+                triangles.push(randomTriangle());
+            }
+
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            triangles.forEach(triangle => {
+                triangle.u_time = (performance.now() - triangle.startTime) / 1000;
+                setUniform(gl, gl.program, triangle);
+                gl.drawArrays(gl.TRIANGLES, 0, 3);
+            });
+            console.log('triangle length:', triangles.length);
+
+            triangles = triangles.filter(triangle => {
+                return triangle.u_time <= triangle.u_duration;
+            });
+
+            requestAnimationFrame(update);
+            
+        }
+
+        function setUniform(gl, program, {u_color, u_rotation, u_scale, u_time, u_duration, u_dir, startTime}) {
+            const uColor = gl.getUniformLocation(program, 'u_color');
+            gl.uniform4fv(uColor, new Float32Array(u_color));
+
+            const uRotation = gl.getUniformLocation(program, 'u_rotation');
+            // console.log('u_rotation:', u_rotation);
+            gl.uniform1f(uRotation, u_rotation);
+
+            const uScale = gl.getUniformLocation(program, 'u_scale');
+            // console.log('u_scale:', u_scale);
+            gl.uniform1f(uScale, u_scale);
+
+            const uDir = gl.getUniformLocation(program, 'u_dir');
+            gl.uniform2fv(uDir, u_dir);
+
+            const uTime = gl.getUniformLocation(program, 'u_time');
+            gl.uniform1f(uTime, u_time);
+
+            const uDuration = gl.getUniformLocation(program, 'u_duration');
+            gl.uniform1f(uDuration, u_duration);
+        }
+
+        function randomTriangle() {
+
+            const PI = Math.PI;
+            const random = Math.random;
+
+            const u_color = [random(), random(), random(), 1.0];
+            const u_rotation = random() * PI;
+            const u_scale = random() * 0.05 + 0.03;
+
+            const rad = random() * PI * 2;
+            const u_dir = [Math.cos(rad), Math.sin(rad)];
+
+            const u_time = 0;
+            const u_duration = 3.0;
+            const startTime = performance.now();
 
             return {u_color, u_rotation, u_scale, u_time, u_duration, u_dir, startTime}
         }
