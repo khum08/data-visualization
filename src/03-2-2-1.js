@@ -33,6 +33,7 @@ void main() {
 
     vec3 color = vec3(step(random(ipos), 0.7));
     color *= step(0.2, fpos.y);
+    // color *= smoothstep(0.0, 1.0, fpos.y);
 
     gl_FragColor.rgb = color;
     gl_FragColor.a = 1.0;
