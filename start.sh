@@ -1,3 +1,4 @@
 port=20000
-echo "server url: http://localhost:${port}"
+
+echo "SERVER URL: http://localhost:${port}"
 python -m SimpleHTTPServer ${port}
