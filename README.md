@@ -21,5 +21,6 @@
 2. [Pattern Creator: Mesh](https://khum08.github.io/data-visualization/src/03-2-1.html)
 3. [Pattern Creator: Random](https://khum08.github.io/data-visualization/src/03-2-2.html)
 4. [Image Process](https://khum08.github.io/data-visualization/src/03-3.html)
-4. [Image Texture](https://khum08.github.io/data-visualization/src/03-4.html)
-4. [Video Texture](https://khum08.github.io/data-visualization/src/03-4-1.html)
+5. [Image Texture](https://khum08.github.io/data-visualization/src/03-4.html)
+6. [Video Texture](https://khum08.github.io/data-visualization/src/03-4-1.html)
+7. [Compose Texture](https://khum08.github.io/data-visualization/src/03-7.html)
