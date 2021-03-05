@@ -52,8 +52,8 @@ async function start() {
     const canvas2d = document.getElementById('canvas');
     const ctx = canvas2d.getContext('2d');
 
-    // let url = '../screenshot/pz.png';
-    let url = '../screenshot/splash.jpg';
+    // let url = '../assets/pz.png';
+    let url = '../assets/splash.jpg';
     const img = await loadImage(url);
 
     const imageData = getImageData(img, {

@@ -106,7 +106,7 @@ async function start() {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, index, gl.STATIC_DRAW);
 
-    let url = '../screenshot/splash.jpg';
+    let url = '../assets/splash.jpg';
     let image = await loadImage(url);
    
     const texture = createTexture(gl, image);

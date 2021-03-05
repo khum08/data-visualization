@@ -1,6 +1,6 @@
 # Data-Visualization
 
-<img src="./screenshot/splash.jpg" width="700" />
+<img src="./assets/splash.jpg" width="700" />
 
 
 ## Table of contents

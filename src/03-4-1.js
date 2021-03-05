@@ -36,7 +36,7 @@ const uv = new Float32Array([
     1, 0
 ]);
 
-let videoUrl = '../screenshot/sintel.mp4';
+let videoUrl = '../assets/sintel.mp4';
 
 function createTexture(image, idx) {
     const texture = gl.createTexture();
