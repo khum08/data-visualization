@@ -20,8 +20,12 @@ precision mediump float;
 uniform sampler2D u_sampler;
 varying vec2 v_uv;
 void main() {
-    gl_FragColor = texture2D(u_sampler, v_uv);
-    // gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    vec4 color = texture2D(u_sampler, v_uv);
+    // gray image
+    float v = 0.2126 * color.x + 0.7152 * color.y + 0.0722 * color.z;
+
+    // gl_FragColor = texture2D(u_sampler, v_uv);
+    gl_FragColor = vec4(vec3(v), color.z);
 }
 `;
 
@@ -53,10 +57,10 @@ function setTexture(gl, idx, texture) {
 }
 
 const vertices = new Float32Array([
-    -0.5, 1.0, 0.0,
+    -1.0, 1.0, 0.0,
     -1.0, -1.0, 0.0,
     1.0, 1.0, 0.0,
-    0.5, -1.0, 0.0
+    1.0, -1.0, 0.0
 ]);
 
 const index = new Uint16Array([
