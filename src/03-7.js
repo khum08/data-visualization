@@ -1,6 +1,6 @@
 const canvas = document.getElementById('canvas');
 // const gl = canvas.getContext('webgl');
-let ygl = new YGL(canvas);
+let renderer = new WebGLRenderer(canvas);
 
 const V_SHADER_DATA = `
 attribute vec3 a_position;
@@ -58,13 +58,13 @@ const uv = new Float32Array([
 
 async function start() {
 
-    let program = ygl.createProgram(V_SHADER_DATA, F_SHADER_DATA);
-    ygl.useProgram(program);
+    let program = renderer.createProgram(V_SHADER_DATA, F_SHADER_DATA);
+    renderer.useProgram(program);
 
-    const texture = await ygl.loadTexture(url);
-    const texture2 = await ygl.loadTexture(url2);
+    const texture = await renderer.loadTexture(url);
+    const texture2 = await renderer.loadTexture(url2);
 
-    ygl.shaderData({
+    renderer.shaderData({
         attributes: {
             a_position: {
                 count: 3,
@@ -82,7 +82,7 @@ async function start() {
         }
     });
 
-    ygl.render();
+    renderer.render();
 
 }
 
