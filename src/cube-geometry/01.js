@@ -71,23 +71,23 @@ const vertices = new Float32Array([
 
 
 const index = new Int8Array([
-    0, 1, 2,// 后
-    1, 2, 3,
+    0,1,2,// 后
+    2,3,1,
 
-    4, 5, 6,// 前
-    5, 6, 7,
+    6,7,4,// 前
+    4,5,7,
 
-    0, 4, 2, //up
-    2, 4, 6,
+    2,6,0, //up
+    0,4,6,
 
-    1, 3, 5, //down
-    3, 5, 7,
+    7,3,5, //down
+    5,1,3,
 
-    0, 1, 4, //left
-    1, 4, 5,
+    4,5,0, //left
+    0,1,5,
 
-    2, 3, 6, //right
-    3, 6, 7
+    2,3,6, //right
+    6,7,3
 
 ]);
 
@@ -98,6 +98,16 @@ function start() {
 
     const {gl} = renderer;
     gl.viewport(0, 0, canvas.width, canvas.height);
+
+    // 遮挡面剔除
+    // gl.enable(gl.CULL_FACE);
+    // gl.frontFace(gl.CCW);
+    // gl.frontFace(gl.CW);
+
+    // 深度测试
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+
 
     
     const verticesBuffer = gl.createBuffer();
