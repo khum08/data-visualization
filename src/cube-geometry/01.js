@@ -98,16 +98,6 @@ function start() {
 
     const {gl} = renderer;
     gl.viewport(0, 0, canvas.width, canvas.height);
-
-    // face cull
-    gl.enable(gl.CULL_FACE);
-    // gl.frontFace(gl.CCW);
-    gl.frontFace(gl.CW);
-
-    // depth test
-    // gl.enable(gl.DEPTH_TEST);
-    // gl.depthFunc(gl.LEQUAL);
-
     
     const verticesBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
@@ -127,15 +117,57 @@ function start() {
     update();
 }
 
+let depthBtn = document.getElementById('depth');
+let cullBtn = document.getElementById('cull');
+let depthState = false;
+let cullState = false;
+
 let rad = 0.0;
 function update() {
     const {gl, program} = renderer;
     const uRad = gl.getUniformLocation(program, 'rad');
     gl.uniform1f(uRad, rad += 0.01);
 
+    // face cull
+    if (cullState) {
+        gl.enable(gl.CULL_FACE);
+        // gl.frontFace(gl.CCW);
+        gl.frontFace(gl.CW);
+    } else {
+        gl.disable(gl.CULL_FACE);
+    }
+
+    // depth test
+    if (depthState) {
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthFunc(gl.LEQUAL);
+    } else {
+        gl.disable(gl.DEPTH_TEST);
+    }
+
     gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_BYTE, 0);
     gl.drawElements(gl.LINES, index.length, gl.UNSIGNED_BYTE, 0);
     requestAnimationFrame(update);
 }
+
+depthBtn.addEventListener('click', function(e) {
+    depthState = !depthState;
+    if (depthState) {
+        depthBtn.innerText = 'disable depth'
+    } else {
+        depthBtn.innerText = 'enable depth'
+    }
+});
+
+cullBtn.addEventListener('click', function(e) {
+    cullState = !cullState;
+    if (cullState) {
+        cullBtn.innerText = 'disable cull-face';
+    } else {
+        cullBtn.innerText = 'enable cull-face';
+    }
+});
+
+
 
 start();
