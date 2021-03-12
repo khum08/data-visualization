@@ -26,3 +26,4 @@
 7. [Video Texture](https://khum08.github.io/data-visualization/src/03-4-1.html)
 8. [Compose Texture](https://khum08.github.io/data-visualization/src/03-7.html)
 9. [Cube Geometry](https://khum08.github.io/data-visualization/src/cube-geometry/01.html)
+9. [MVP](https://khum08.github.io/data-visualization/src/cube-geometry/03.html)
