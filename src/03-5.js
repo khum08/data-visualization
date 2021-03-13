@@ -35,7 +35,8 @@ void main() {
     vec2 uv = v_uv + 1.0 - 2.0 * random(floor(st));
     vec4 color = texture2D(u_sampler, mix(uv, v_uv, min(u_time, 1.0)));
 
-    gl_FragColor = color;
+    gl_FragColor.xyz = color.xyz;
+    gl_FragColor.a = min(u_time, 1.0);
 }
 `;
 
