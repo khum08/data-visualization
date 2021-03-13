@@ -1,6 +1,7 @@
 console.log('start');
 let canvas = document.getElementById('canvas');
 const gl = canvas.getContext('webgl');
+let btn = document.getElementById('btn');
 
 const V_SHADER_DATA = `
 attribute vec3 a_position;
@@ -108,15 +109,27 @@ async function start() {
 
 }
 
+let delta = 0;
+let clicked = false;
+
 function update(time) {
 
-    let cTime = time / 1500;
+    let cTime = (time - delta) / 1200;
+    if (clicked) {
+        delta = time;
+        clicked = false;
+    }
+
     const uTime = gl.getUniformLocation(gl.program, 'u_time');
     gl.uniform1f(uTime, cTime);
 
     gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
     requestAnimationFrame(update);
 }
+
+btn.addEventListener('click', function(e) {
+    clicked = true;
+});
 
 
 start();
