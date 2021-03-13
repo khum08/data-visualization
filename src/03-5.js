@@ -1,7 +1,8 @@
 console.log('start');
 let canvas = document.getElementById('canvas');
 const gl = canvas.getContext('webgl');
-let btn = document.getElementById('btn');
+let effectBtn = document.getElementById('effect');
+let typeBtn = document.getElementById('type');
 
 const V_SHADER_DATA = `
 attribute vec3 a_position;
@@ -21,6 +22,7 @@ precision mediump float;
 
 uniform sampler2D u_sampler;
 uniform float u_time;
+uniform int u_type;
 varying vec2 v_uv;
 
 float random(vec2 st) {
@@ -28,15 +30,58 @@ float random(vec2 st) {
     return fract(sin(temp) * 31415.9265);
 }
 
-void main() {
+// type 0
+vec4 getColor() {
+    return texture2D(u_sampler, v_uv);
+}
+
+// type1
+vec4 getColor1() {
     // change to 100 * 50;
     vec2 st = v_uv * vec2(160, 80);
     // uv 0-2;
     vec2 uv = v_uv + 1.0 - 2.0 * random(floor(st));
     vec4 color = texture2D(u_sampler, mix(uv, v_uv, min(u_time, 1.0)));
 
-    gl_FragColor.xyz = color.xyz;
-    gl_FragColor.a = min(u_time, 1.0);
+    return vec4(color.xyz, min(u_time, 1.0));
+    // gl_FragColor.xyz = color.xyz;
+    // gl_FragColor.a = min(u_time, 1.0);
+}
+
+// type2
+vec4 getColor2() {
+
+    vec2 st = v_uv * vec2(100.0, 50.0);
+    float d = distance(fract(st), vec2(0.5));
+
+    float p = u_time + random(floor(st));
+
+    // shading [0.5, 1];
+    float shading = 0.5 + 0.5 * sin(p);
+    
+    // d [0, 1];
+    d = smoothstep(d, d + 0.01, 1.0 * shading);
+
+    vec4 color = texture2D(u_sampler, v_uv);
+
+    vec3 rgb = color.rgb * clamp(0.1, 1.3, d + shading);
+
+    return vec4(rgb, color.a);
+
+    // return vec4(0.0, 0.0, 1.0, 1.0);
+}
+
+void main() {
+    if (u_type == 0) {
+        gl_FragColor = getColor();
+    } else if (u_type == 1) {
+        gl_FragColor = getColor1();
+    } else if (u_type == 2) {
+        gl_FragColor = getColor2();
+    }
+    else {
+        gl_FragColor = getColor();
+    }
 }
 `;
 
@@ -112,6 +157,7 @@ async function start() {
 
 let delta = 0;
 let clicked = false;
+let effectType = 0;
 
 function update(time) {
 
@@ -121,6 +167,9 @@ function update(time) {
         clicked = false;
     }
 
+    const uType = gl.getUniformLocation(gl.program, 'u_type');
+    gl.uniform1i(uType, effectType);
+
     const uTime = gl.getUniformLocation(gl.program, 'u_time');
     gl.uniform1f(uTime, cTime);
 
@@ -128,9 +177,16 @@ function update(time) {
     requestAnimationFrame(update);
 }
 
-btn.addEventListener('click', function(e) {
+effectBtn.addEventListener('click', function(e) {
     clicked = true;
 });
+
+typeBtn.addEventListener('click', function(e) {
+    effectType = (effectType + 1) % 3;
+    typeBtn.innerText = 'effect type ' + effectType;
+})
+
+
 
 
 start();
