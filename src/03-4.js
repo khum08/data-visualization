@@ -24,8 +24,15 @@ void main() {
     // gray image
     float v = 0.2126 * color.x + 0.7152 * color.y + 0.0722 * color.z;
 
+    // type 1
     // gl_FragColor = texture2D(u_sampler, v_uv);
-    gl_FragColor = vec4(vec3(v), color.z);
+
+    // type 2
+    gl_FragColor.xyz = texture2D(u_sampler, v_uv).xyz;
+    gl_FragColor.a = 1.0 - min(distance(v_uv, vec2(0.5, 0.5)) * 2.0, 1.0);
+    
+    // type 3
+    // gl_FragColor = vec4(vec3(v), color.z);
 }
 `;
 
