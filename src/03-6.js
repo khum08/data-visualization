@@ -6,6 +6,7 @@ let gridBtn = document.getElementById('grid');
 let lineBtn = document.getElementById('line');
 let dLineBtn = document.getElementById('dLine');
 let lineSegementBtn = document.getElementById('lineSegment');
+let triangleBtn = document.getElementById('triangle');
 
 const V_SHADER_DATA = `
 attribute vec3 a_position;
@@ -51,6 +52,7 @@ vec4 getGridColor() {
     return vec4(rgb, 1.0);
 }
 
+
 vec4 getCircleColor() {
     float d = distance(v_uv, vec2(0.5, 0.5));
     vec3 rgb = vec3(1.0) * smoothstep(d, d + 0.005, 0.3);
@@ -72,25 +74,49 @@ vec4 getDLineColor(vec2 origin) {
     // return vec4(1.0);
 }
 
-vec4 getLineSegColor() {
-    vec2 origin = vec2(0.5, 0.5);
-    vec3 lineSeg = vec3(u_mouseCoord - origin, 0.0);
 
-    float dis = abs(cross(vec3(v_uv - origin, 0.0), normalize(lineSeg)).z);
+vec4 getLineSegColor() {
+
+    vec2 origin = vec2(0.5, 0.5);
+    vec3 ab = vec3(u_mouseCoord - origin, 0);
+
+    vec3 ap = vec3(v_uv - origin, 0);
+
+    float dis = abs(cross(ap, normalize(ab)).z);
     
-    float proj = dot(v_uv - origin, u_mouseCoord - origin) / length(lineSeg);
-    if (proj <= 0.0 && proj >= 1.0) {
+    float proj = dot(ap, ab) / length(ab);
+    if (proj < 0.0 || proj > length(ab)) {
         dis = min(distance(v_uv, origin), distance(v_uv, u_mouseCoord));
     }
 
-    vec3 rgb = vec3(1.0) * smoothstep(dis, dis + 0.005, 0.005);
+    vec3 rgb = vec3(.0, .0, 1.0) * smoothstep(dis, dis + 0.005, 0.005);
+
     return vec4(rgb, 1.0);
-    // return vec4(1.0);
+}
+
+
+bool inTriangle(vec3 p, vec3 a, vec3 b, vec3 c) {
+    bool pab = cross(p - a, b - a).z > 0.0;
+    bool pbc = cross(p - b, c - b).z > 0.0;
+    bool pca = cross(p - c, a - c).z > 0.0;
+    // return (pab && pbc && pca);
+    return (pab && pbc && pca) || (!pab && !pbc && !pca);
+}
+
+
+vec4 getTriangleColor() {
+    bool inTri = inTriangle(vec3(v_uv, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.5, 1.0, 0.0), vec3(1.0, 0.0, 0.0));
+    if (inTri) {
+        return vec4(1.0, 0.0, 0.0, 1.0);
+    }
+    return vec4(1.0, 1.0, 1.0, 1.0);
 }
 
 vec4 getDefault() {
     return vec4(0.0, 0.0, 1.0, 1.0);
 }
+
+
 
 void main() {
     if (u_showType == 0) {
@@ -107,6 +133,9 @@ void main() {
     } 
     else if (u_showType == 4) {
         gl_FragColor = getLineSegColor();
+    }
+    else if (u_showType == 5) {
+        gl_FragColor = getTriangleColor();
     }
     else {
         gl_FragColor = getDefault();
@@ -176,7 +205,7 @@ circleBtn.style.backgroundColor = 'red';
 canvas.addEventListener('mousemove', e => {
     dx = e.offsetX / canvas.width;
     dy = e.offsetY / canvas.height;
-    console.log('delta:', dx, dy);
+    // console.log('delta:', dx, dy);
 });
 
 
@@ -228,12 +257,19 @@ lineSegementBtn.addEventListener("click", () => {
     lineSegementBtn.style.backgroundColor = 'red';
 });
 
+triangleBtn.addEventListener("click", () => {
+    showType = 5;
+    grayBtn();
+    triangleBtn.style.backgroundColor = 'red';
+})
+
 function grayBtn() {
     circleBtn.style.backgroundColor = 'gray';
     gridBtn.style.backgroundColor = 'gray';
     lineBtn.style.backgroundColor = 'gray';
     dLineBtn.style.backgroundColor = 'gray';
     lineSegementBtn.style.backgroundColor = 'gray';
+    triangleBtn.style.backgroundColor = 'gray';
 }
 
 
