@@ -7,6 +7,9 @@ let lineBtn = document.getElementById('line');
 let dLineBtn = document.getElementById('dLine');
 let lineSegementBtn = document.getElementById('lineSegment');
 let triangleBtn = document.getElementById('triangle');
+let parallelBtn = document.getElementById('parallel');
+let circleShaderBtn = document.getElementById('circleShader');
+let ringShaderBtn = document.getElementById('ringShader');
 
 const V_SHADER_DATA = `
 attribute vec3 a_position;
@@ -116,6 +119,33 @@ vec4 getDefault() {
     return vec4(0.0, 0.0, 1.0, 1.0);
 }
 
+vec4 getParallelLines() {
+    vec3 line = vec3(1.0, 1.0, 0.0);
+    vec3 cp = vec3(v_uv, 0.0);
+    float d = abs(cross(cp, normalize(line)).z);
+
+    d = fract(d * 20.0);
+
+    vec3 rgb = (smoothstep(0.45, 0.5, d) - smoothstep(0.5, 0.55, d)) * vec3(1.0);
+
+    return vec4(rgb, 1.0);
+}
+
+vec4 getCircleShaderColor() {
+    vec3 origin = vec3(0.5, 0.5, 0.0);
+    vec3 cp = vec3(v_uv, 0.0);
+    float d = distance(cp, origin);
+
+    d = fract(d * 20.0);
+
+    vec3 rgb = (smoothstep(0.45, 0.5, d) - smoothstep(0.5, 0.55, d)) * vec3(1.0);
+
+    return vec4(rgb, 1.0);
+}
+
+vec4 getRingShaderColor() {
+    return vec4(0.0, 0.0, 1.0, 1.0);
+}
 
 
 void main() {
@@ -136,6 +166,15 @@ void main() {
     }
     else if (u_showType == 5) {
         gl_FragColor = getTriangleColor();
+    }
+    else if (u_showType == 6) {
+        gl_FragColor = getParallelLines();
+    }
+    else if (u_showType == 7) {
+        gl_FragColor = getCircleShaderColor();
+    }
+    else if (u_showType == 8) {
+        gl_FragColor = getRingShaderColor();
     }
     else {
         gl_FragColor = getDefault();
@@ -261,7 +300,26 @@ triangleBtn.addEventListener("click", () => {
     showType = 5;
     grayBtn();
     triangleBtn.style.backgroundColor = 'red';
-})
+});
+
+parallelBtn.addEventListener("click", () => {
+    showType = 6;
+    grayBtn();
+    parallelBtn.style.backgroundColor = 'red';
+});
+
+
+circleShader.addEventListener("click", () => {
+    showType = 7;
+    grayBtn();
+    circleShader.style.backgroundColor = 'red';
+});
+
+ringShaderBtn.addEventListener("click", () => {
+    showType = 8;
+    grayBtn();
+    ringShaderBtn.style.backgroundColor = 'red';
+});
 
 function grayBtn() {
     circleBtn.style.backgroundColor = 'gray';
@@ -270,6 +328,9 @@ function grayBtn() {
     dLineBtn.style.backgroundColor = 'gray';
     lineSegementBtn.style.backgroundColor = 'gray';
     triangleBtn.style.backgroundColor = 'gray';
+    parallelBtn.style.backgroundColor = 'gray';
+    circleShader.style.backgroundColor = 'gray';
+    ringShaderBtn.style.backgroundColor = 'gray';
 }
 
 
