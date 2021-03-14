@@ -23,6 +23,9 @@ precision mediump float;
 uniform sampler2D u_sampler;
 uniform float u_time;
 uniform int u_type;
+
+uniform vec2 u_mouseCoord;
+
 varying vec2 v_uv;
 
 float random(vec2 st) {
@@ -71,13 +74,116 @@ vec4 getColor2() {
     // return vec4(0.0, 0.0, 1.0, 1.0);
 }
 
+bool inTriangle(vec3 p, vec3 a, vec3 b, vec3 c) {
+    bool pab = cross(p - a, b - a).z > 0.0;
+    bool pbc = cross(p - b, c - b).z > 0.0;
+    bool pca = cross(p - c, a - c).z > 0.0;
+
+    return (pab && pbc && pca) || (!pab && !pbc && !pca);
+}
+
+vec3 rotateZ(vec3 src, float rad) {
+    mat3 rotate = mat3(
+        cos(rad), sin(rad), 0.0,
+        -sin(rad), cos(rad), 0.0,
+        0.0, 0.0, 1.0
+    );
+    return rotate * src;
+    // return vec3(1.0);
+}
+
+vec3 trans(vec3 src) {
+    
+    float x0 = 0.5;
+    float y0 = 0.5;
+
+    mat4 translate = mat4(
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        x0, y0, 0, 1
+    );
+    return (translate * vec4(src, 1.0)).xyz;
+    // return vec3(1.0);
+}
+
+vec3 scale(vec3 src, float factor) {
+    mat3 scaleM = mat3(
+        factor, 0, 0,
+        0, factor, 0,
+        0, 0, 1.0
+    );
+    return scaleM * src;
+
+    // return vec3(1.0);
+
+}
+
+
+vec4 getTriangleTrization() {
+    
+    vec3 base = vec3(0, 1, 0.0);
+    
+    vec3 a = base;
+    vec3 b = rotateZ(a, 3.141592653589793 * 2.0 / 3.0);
+    vec3 c = rotateZ(a, 3.141592653589793 * 4.0 / 3.0);
+    a = trans(scale(a, sin(u_time) * 1.5));
+    b = trans(scale(b, sin(u_time) * 1.5));
+    c = trans(scale(c, sin(u_time) * 1.5));
+    
+    bool isIn = inTriangle(vec3(v_uv, 0.0), a , b , c );
+
+    if (isIn) {
+        return texture2D(u_sampler, v_uv);
+    }
+
+    return vec4(0.0, 0.0, 0.0, 1.0);
+}
+
+vec4 getCircleColor() {
+    vec4 color = texture2D(u_sampler, v_uv);
+
+    vec2 uv = v_uv - vec2(0.5);
+    vec2 a = vec2(0, 1);
+    float time = u_time;
+    vec2 b = u_mouseCoord - vec2(0.5);
+    float d = 0.0;
+
+    float c0 = cross(vec3(b, 0.0), vec3(a, 0.0)).z;
+    float c1 = cross(vec3(uv, 0.0), vec3(a, 0.0)).z;
+    float c2 = cross(vec3(uv, 0.0), vec3(b, 0.0)).z;
+    if(c0 > 0.0 && c1 > 0.0 && c2 < 0.0)
+    {
+        d = 1.0;
+    }
+    
+    if(c0 < 0.0 && (c1 >= 0.0 || c2 <= 0.0))
+    {
+        d = 1.0;
+    }
+
+    color.g *= mix(0.5, 1.0, 1.0 - d);
+    color.b *= mix(0.5, 1.0, 1.0 - d);
+    // color.a = mix(0.9, 1.0, d);
+
+    return color;
+}
+
 void main() {
     if (u_type == 0) {
         gl_FragColor = getColor();
-    } else if (u_type == 1) {
+    }
+    else if (u_type == 1) {
         gl_FragColor = getColor1();
-    } else if (u_type == 2) {
+    }
+    else if (u_type == 2) {
         gl_FragColor = getColor2();
+    }
+    else if (u_type == 3) {
+        gl_FragColor = getTriangleTrization();
+    }
+    else if (u_type == 4) {
+        gl_FragColor = getCircleColor();
     }
     else {
         gl_FragColor = getColor();
@@ -159,6 +265,9 @@ let delta = 0;
 let clicked = false;
 let effectType = 0;
 
+let deltaX = 0;
+let deltaY = 0;
+
 function update(time) {
 
     let cTime = (time - delta) / 1200;
@@ -166,6 +275,9 @@ function update(time) {
         delta = time;
         clicked = false;
     }
+
+    const uMouseCoord = gl.getUniformLocation(gl.program, 'u_mouseCoord');
+    gl.uniform2fv(uMouseCoord, new Float32Array([deltaX, 1 - deltaY]));
 
     const uType = gl.getUniformLocation(gl.program, 'u_type');
     gl.uniform1i(uType, effectType);
@@ -177,16 +289,20 @@ function update(time) {
     requestAnimationFrame(update);
 }
 
+canvas.addEventListener('mousemove', function(e) {
+    deltaX = e.offsetX / canvas.width;
+    deltaY = e.offsetY / canvas.height;
+    
+});
+
 effectBtn.addEventListener('click', function(e) {
     clicked = true;
 });
 
 typeBtn.addEventListener('click', function(e) {
-    effectType = (effectType + 1) % 3;
+    effectType = (effectType + 1) % 5;
     typeBtn.innerText = 'effect type ' + effectType;
-})
-
-
+});
 
 
 start();
