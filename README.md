@@ -2,7 +2,6 @@
 
 <img src="./assets/splash.jpg" width="700" />
 
-
 ## Table of contents
 ### 一、Graphics Basic
 1. [Html + Css & SVG](https://khum08.github.io/data-visualization/src/01-1.html)
