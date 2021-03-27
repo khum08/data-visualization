@@ -31,4 +31,4 @@
 11. [Noise](https://khum08.github.io/data-visualization/src/03-8.html)
 
 
-### 四、Vision adanced
+### 四、Vision Adanced
