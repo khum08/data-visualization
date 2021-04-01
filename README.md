@@ -29,7 +29,3 @@
 9. [MVP](https://khum08.github.io/data-visualization/src/cube-geometry/03.html)
 10. [ShaderToy](https://khum08.github.io/data-visualization/src/03-6.html)
 11. [Noise](https://khum08.github.io/data-visualization/src/03-8.html)
-
-
-### 四、Vision Adanced
-01. [3d](https://khum08.github.io/data-visualization/src/04/01.html)
