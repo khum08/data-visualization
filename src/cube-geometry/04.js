@@ -39,38 +39,79 @@ precision mediump float;
 #endif
 
 uniform sampler2D uTexture;
+uniform int uShowType;
 
 varying vec3 vWorldPosition;
-varying vec3 vNormal;
+varying vec3 vNormal; // normal vec is lookat inside.
 varying vec3 vLightPosition;
 varying vec2 vUv;
 
 // lambert shader
 float getDiffuse() {
     vec3 n = normalize(vNormal);
-    vec3 l = normalize(vWorldPosition - vLightPosition);
-    float diffuse = max(dot(n, l), 0.0);
+    vec3 l = normalize(vLightPosition - vWorldPosition);
+    float diffuse = max(dot(-n, l), 0.0);
     return diffuse;
 }
 
 // specular
-float getHighlight() {
+float getHighlight(bool isBlinn) {
     vec3 eyePosition = vec3(0.0, 0.0, 0.0);
     vec3 n = normalize(vNormal);
-    vec3 ref = reflect(normalize(vWorldPosition - vLightPosition), n);
-    vec3 eyeDir = normalize(eyePosition - vWorldPosition);
-    float highlight = pow(max(dot(ref, eyeDir), 0.0), 40.0);
+    float highlight = 0.0;
+
+    if (isBlinn) {
+        vec3 eyeDir = normalize(eyePosition - vWorldPosition);
+        vec3 lightDir = normalize(vLightPosition - vWorldPosition);
+        vec3 halfVec = normalize(eyeDir + lightDir);
+        highlight = pow(max(dot(halfVec, -n), 0.0), 40.0);
+    } else {
+        vec3 ref = reflect(normalize(vWorldPosition - vLightPosition), n);
+        vec3 eyeDir = normalize(eyePosition - vWorldPosition);
+        highlight = pow(max(dot(ref, eyeDir), 0.0), 40.0);
+    }
+ 
     return highlight;
 }
+
 
 void main() {
     vec3 color = texture2D(uTexture, vUv).xyz;
     float diffuse = getDiffuse();
-    float highlight = getHighlight();
-    float ambient = 0.2;
 
-    vec3 rgb = color * (diffuse + highlight + ambient);
-    gl_FragColor = vec4(rgb, 1.0);
+    if (uShowType == 0) { // lambert
+        vec3 rgb = color * diffuse;
+        gl_FragColor = vec4(rgb, 1.0);
+
+    } else if (uShowType == 1) { // half lambert
+
+        vec3 rgb = color * (diffuse * 0.5 + 0.5);
+        gl_FragColor = vec4(rgb, 1.0);
+
+    } else if (uShowType == 2) { // phong
+        float highlight = getHighlight(false);
+        float ambient = 0.2;
+
+        vec3 rgb = color * (diffuse + highlight + ambient);
+        gl_FragColor = vec4(rgb, 1.0);
+    } else if (uShowType == 3) { // blinn phong
+
+        float highlight = getHighlight(true);
+        float ambient = 0.2;
+
+        vec3 rgb = color * (diffuse + highlight + ambient);
+        gl_FragColor = vec4(rgb, 1.0);
+        // if (highlight == 0.0) {
+        //     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        // }
+    } else {
+        float highlight = getHighlight(false);
+        float ambient = 0.2;
+
+        vec3 rgb = color * (diffuse + highlight + ambient);
+        gl_FragColor = vec4(1.0, 0.0, .0, 1.0);
+    }
+
 }
 `;
 
@@ -94,6 +135,10 @@ function loadImage(url) {
         image.src = url;
     });
 }
+
+let uShowType;
+let showTypeV = 0;
+
 
 async function start() {
 
@@ -161,6 +206,9 @@ async function start() {
     gl.uniformMatrix4fv(uProjMat, false, projMat);
     gl.enable(gl.DEPTH_TEST);
 
+    uShowType = gl.getUniformLocation(program, 'uShowType');
+
+
     let image = await loadImage(url);
     createTexture(gl, program, 'uTexture', image, 0);
 
@@ -170,9 +218,11 @@ async function start() {
 
 function update() {
 
+    gl.uniform1i(uShowType, showTypeV);
+
     // rotate
     glMatrix.mat4.rotateY(modelMat, modelMat, 0.01);
-    glMatrix.mat4.rotateX(modelMat, modelMat, 0.01);
+    glMatrix.mat4.rotateX(modelMat, modelMat, 0.005);
     // glMatrix.mat4.fromYRotation(rotationYMat, rotateY);
     // glMatrix.mat4.multiply(modelMat, modelMat, rotationYMat);
     gl.uniformMatrix4fv(uModelMat, false, modelMat);
@@ -333,4 +383,14 @@ function createBox(options) {
 
 };
 
+
+function showType(type) {
+    let btns = document.getElementsByTagName('button');
+    for(let i = 0; i < btns.length; i++) {
+        let btn = btns[i];
+        btn.style.backgroundColor = 'gray';
+    }
+    console.log(type);
+    showTypeV = type;
+}
 start();

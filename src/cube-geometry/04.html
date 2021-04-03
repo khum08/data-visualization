@@ -5,12 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shader</title>
+    <style>
+        .selected { 
+            background: red;
+        }
+    </style>
 
 </head>
 <body>
     <canvas id="canvas" width="800" height="800"></canvas>
+    <div id="controls">
+        <button onclick="showType(0)">Lambert shading</button>
+        <button onclick="showType(1)">Half Lambert shading</button>
+        <button onclick="showType(2)">Phong shading</button>
+        <button onclick="showType(3)">Blinn Phong shading</button>
+    </div>
+
     <script src="../../lib/gl-matrix.js"></script>
     <script type="text/javascript" src="../../lib/glUtils.js"></script>
     <script type="text/javascript" src="./04.js"></script>
+    
 </body>
 </html>
