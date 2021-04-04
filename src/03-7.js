@@ -44,7 +44,7 @@ const vertices = new Float32Array([
     0.8, -0.8, 0.0
 ]);
 
-const index = new Int16Array([
+const index = new Int8Array([
    0, 1, 2,
    1, 2, 3
 ]);
