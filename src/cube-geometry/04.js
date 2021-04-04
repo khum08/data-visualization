@@ -179,7 +179,7 @@ async function start() {
     uModelMat = gl.getUniformLocation(program, 'uModelMat');
 
     // scale
-    let scaling = glMatrix.vec3.fromValues(1.0, 1.0, 1.0);
+    let scaling = glMatrix.vec3.fromValues(1.2, 1.2, 1.2);
     glMatrix.mat4.scale(modelMat, modelMat, scaling);
 
     // rotate
@@ -241,25 +241,25 @@ function update() {
 function createBox(options) {
     options = options || {};
 
-    var dimensions = options.dimensions || [1, 1, 1];
-    var position = options.position || [-dimensions[0] / 2, -dimensions[1] / 2, -dimensions[2] / 2];
-    var x = position[0];
-    var y = position[1];
-    var z = position[2];
-    var width = dimensions[0];
-    var height = dimensions[1];
-    var depth = dimensions[2];
+    let dimensions = options.dimensions || [1, 1, 1];
+    let position = options.position || [-dimensions[0] / 2, -dimensions[1] / 2, -dimensions[2] / 2];
+    let x = position[0];
+    let y = position[1];
+    let z = position[2];
+    let width = dimensions[0];
+    let height = dimensions[1];
+    let depth = dimensions[2];
 
-    var fbl = { x: x, y: y, z: z + depth };
-    var fbr = { x: x + width, y: y, z: z + depth };
-    var ftl = { x: x, y: y + height, z: z + depth };
-    var ftr = { x: x + width, y: y + height, z: z + depth };
-    var bbl = { x: x, y: y, z: z };
-    var bbr = { x: x + width, y: y, z: z };
-    var btl = { x: x, y: y + height, z: z };
-    var btr = { x: x + width, y: y + height, z: z };
+    let fbl = { x: x, y: y, z: z + depth };
+    let fbr = { x: x + width, y: y, z: z + depth };
+    let ftl = { x: x, y: y + height, z: z + depth };
+    let ftr = { x: x + width, y: y + height, z: z + depth };
+    let bbl = { x: x, y: y, z: z };
+    let bbr = { x: x + width, y: y, z: z };
+    let btl = { x: x, y: y + height, z: z };
+    let btr = { x: x + width, y: y + height, z: z };
 
-    var positions = new Float32Array([
+    let positions = new Float32Array([
         //front
         fbl.x, fbl.y, fbl.z,
         fbr.x, fbr.y, fbr.z,
@@ -309,7 +309,7 @@ function createBox(options) {
         fbr.x, fbr.y, fbr.z,
     ]);
 
-    var uvs = new Float32Array([
+    let uvs = new Float32Array([
         //front
         0, 0,
         1, 0,
@@ -359,9 +359,9 @@ function createBox(options) {
         1, 1
     ]);
 
-    var normals = new Float32Array(positions.length);
-    var i, count;
-    var ni;
+    let normals = new Float32Array(positions.length);
+    let i, count;
+    let ni;
 
     for (i = 0, count = positions.length / 3; i < count; i++) {
         ni = i * 3;
@@ -396,3 +396,4 @@ function showType(type) {
     showTypeV = type;
 }
 start();
+
