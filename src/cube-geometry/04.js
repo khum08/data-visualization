@@ -1,11 +1,14 @@
-const canvas = document.getElementById('canvas');
-const gl = canvas.getContext('webgl', {
+var canvas = document.getElementById('canvas');
+var gl = canvas.getContext('webgl', {
     antialias: true
 });
 gl.viewport(0, 0, canvas.width, canvas.height);
 
+// var gui = new dat.GUI();
 
-const V_SHADER_DATA = `
+
+
+var V_SHADER_DATA = `
 attribute vec3 aPosition;
 attribute vec3 aNormal;
 attribute vec2 aUv;
@@ -33,7 +36,7 @@ void main() {
 }
 `;
 
-const F_SHADER_DATA = `
+var F_SHADER_DATA = `
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -119,16 +122,16 @@ void main() {
 
 
 
-let modelMat = glMatrix.mat4.create();
+var modelMat = glMatrix.mat4.create();
 
-let projMat = glMatrix.mat4.create();
+var projMat = glMatrix.mat4.create();
 
-let uModelMat;
+var uModelMat;
 
-let url = '../../assets/yzk.jpeg';
+var url = '../../assets/yzk.jpeg';
 
 function loadImage(url) {
-    let image = new Image();
+    var image = new Image();
     image.crossOrigin = 'anonymous';
     return new Promise(function(resolve, reject) {
         image.onload = function() {
@@ -138,40 +141,40 @@ function loadImage(url) {
     });
 }
 
-let uShowType;
-let showTypeV = 0;
+var uShowType;
+var showTypeV = 0;
 
 
 async function start() {
 
-    const box = createBox();
-    const vShader = createShader(gl, gl.VERTEX_SHADER, V_SHADER_DATA);
-    const fShader = createShader(gl, gl.FRAGMENT_SHADER, F_SHADER_DATA);
+    var box = createBox();
+    var vShader = createShader(gl, gl.VERTEX_SHADER, V_SHADER_DATA);
+    var fShader = createShader(gl, gl.FRAGMENT_SHADER, F_SHADER_DATA);
 
-    const program = initProgram(gl, vShader, fShader);
+    var program = initProgram(gl, vShader, fShader);
 
     // ============ vertices ============
-    const vcBuffer = gl.createBuffer();
+    var vcBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vcBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, box.positions, gl.STATIC_DRAW);
-    const aPosition = gl.getAttribLocation(program, 'aPosition');
+    var aPosition = gl.getAttribLocation(program, 'aPosition');
     gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(aPosition);
 
     // ============ uv ============
-    const uvBuffer = gl.createBuffer();
+    var uvBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, box.uvs, gl.STATIC_DRAW);
-    const aUv = gl.getAttribLocation(program, 'aUv');
+    var aUv = gl.getAttribLocation(program, 'aUv');
     gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(aUv);
 
 
     // ============ normal ============
-    const normalBuffer = gl.createBuffer();
+    var normalBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, box.normals, gl.STATIC_DRAW);
-    const aNormal = gl.getAttribLocation(program, 'aNormal');
+    var aNormal = gl.getAttribLocation(program, 'aNormal');
     gl.vertexAttribPointer(aNormal, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(aNormal);
 
@@ -179,7 +182,7 @@ async function start() {
     uModelMat = gl.getUniformLocation(program, 'uModelMat');
 
     // scale
-    let scaling = glMatrix.vec3.fromValues(1.2, 1.2, 1.2);
+    var scaling = glMatrix.vec3.fromValues(1.2, 1.2, 1.2);
     glMatrix.mat4.scale(modelMat, modelMat, scaling);
 
     // rotate
@@ -187,31 +190,31 @@ async function start() {
 
 
     // translate
-    let translationMat = glMatrix.mat4.create()
-    let translateV = glMatrix.vec3.fromValues(0, 0, -1.5);
+    var translationMat = glMatrix.mat4.create()
+    var translateV = glMatrix.vec3.fromValues(0, 0, -1.5);
     glMatrix.mat4.fromTranslation(translationMat, translateV);
     glMatrix.mat4.multiply(modelMat, translationMat, modelMat);
 
     // ============ view ============
-    let viewMat = glMatrix.mat4.create();
-    let eyePosition = glMatrix.vec3.fromValues(0, 0, 0);
-    let center = glMatrix.vec3.fromValues(0, 0, -1);
-    let up = glMatrix.vec3.fromValues(0, 1, 0);
+    var viewMat = glMatrix.mat4.create();
+    var eyePosition = glMatrix.vec3.fromValues(0, 0, 0);
+    var center = glMatrix.vec3.fromValues(0, 0, -1);
+    var up = glMatrix.vec3.fromValues(0, 1, 0);
     glMatrix.mat4.lookAt(viewMat, eyePosition, center, up);
-    const uViewMat = gl.getUniformLocation(program, 'uViewMat');
+    var uViewMat = gl.getUniformLocation(program, 'uViewMat');
     gl.uniformMatrix4fv(uViewMat, false, viewMat);
 
 
     // ============ proj ============
     glMatrix.mat4.perspective(projMat, 90, 1, 0.01, 100);
-    const uProjMat = gl.getUniformLocation(program, 'uProjMat');
+    var uProjMat = gl.getUniformLocation(program, 'uProjMat');
     gl.uniformMatrix4fv(uProjMat, false, projMat);
     gl.enable(gl.DEPTH_TEST);
 
     uShowType = gl.getUniformLocation(program, 'uShowType');
 
 
-    let image = await loadImage(url);
+    var image = await loadImage(url);
     createTexture(gl, program, 'uTexture', image, 0);
 
     update();
@@ -241,25 +244,25 @@ function update() {
 function createBox(options) {
     options = options || {};
 
-    let dimensions = options.dimensions || [1, 1, 1];
-    let position = options.position || [-dimensions[0] / 2, -dimensions[1] / 2, -dimensions[2] / 2];
-    let x = position[0];
-    let y = position[1];
-    let z = position[2];
-    let width = dimensions[0];
-    let height = dimensions[1];
-    let depth = dimensions[2];
+    var dimensions = options.dimensions || [1, 1, 1];
+    var position = options.position || [-dimensions[0] / 2, -dimensions[1] / 2, -dimensions[2] / 2];
+    var x = position[0];
+    var y = position[1];
+    var z = position[2];
+    var width = dimensions[0];
+    var height = dimensions[1];
+    var depth = dimensions[2];
 
-    let fbl = { x: x, y: y, z: z + depth };
-    let fbr = { x: x + width, y: y, z: z + depth };
-    let ftl = { x: x, y: y + height, z: z + depth };
-    let ftr = { x: x + width, y: y + height, z: z + depth };
-    let bbl = { x: x, y: y, z: z };
-    let bbr = { x: x + width, y: y, z: z };
-    let btl = { x: x, y: y + height, z: z };
-    let btr = { x: x + width, y: y + height, z: z };
+    var fbl = { x: x, y: y, z: z + depth };
+    var fbr = { x: x + width, y: y, z: z + depth };
+    var ftl = { x: x, y: y + height, z: z + depth };
+    var ftr = { x: x + width, y: y + height, z: z + depth };
+    var bbl = { x: x, y: y, z: z };
+    var bbr = { x: x + width, y: y, z: z };
+    var btl = { x: x, y: y + height, z: z };
+    var btr = { x: x + width, y: y + height, z: z };
 
-    let positions = new Float32Array([
+    var positions = new Float32Array([
         //front
         fbl.x, fbl.y, fbl.z,
         fbr.x, fbr.y, fbr.z,
@@ -309,7 +312,7 @@ function createBox(options) {
         fbr.x, fbr.y, fbr.z,
     ]);
 
-    let uvs = new Float32Array([
+    var uvs = new Float32Array([
         //front
         0, 0,
         1, 0,
@@ -359,9 +362,9 @@ function createBox(options) {
         1, 1
     ]);
 
-    let normals = new Float32Array(positions.length);
-    let i, count;
-    let ni;
+    var normals = new Float32Array(positions.length);
+    var i, count;
+    var ni;
 
     for (i = 0, count = positions.length / 3; i < count; i++) {
         ni = i * 3;
@@ -387,9 +390,9 @@ function createBox(options) {
 
 
 function showType(type) {
-    let btns = document.getElementsByTagName('button');
-    for(let i = 0; i < btns.length; i++) {
-        let btn = btns[i];
+    var btns = document.getElementsByTagName('button');
+    for(var i = 0; i < btns.length; i++) {
+        var btn = btns[i];
         btn.style.backgroundColor = 'gray';
     }
     console.log(type);
