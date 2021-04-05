@@ -4,7 +4,25 @@ var gl = canvas.getContext('webgl', {
 });
 gl.viewport(0, 0, canvas.width, canvas.height);
 
-// var gui = new dat.GUI();
+var gui = new dat.GUI();
+var config = {
+    fov: 86,
+    Shading: 'Phong',
+    shadingType: 2,
+};
+gui.add(config, 'fov').min(84).max(88).step(0.01).onChange(function(v) {
+    fov = v;
+});
+var ShadingCtrl = gui.add(config, 'Shading', ["Lambert", "half Lambert", "Phong", "Blinn Phong"]).onChange(function(v) {
+    console.log(v);
+    var mapping = { 
+        'Lambert': 0,
+        'half Lambert': 1,
+        'Phong': 2,
+        'Blinn Phong': 3,
+    }
+    config.shadingType = mapping[v];
+});
 
 
 
@@ -142,7 +160,8 @@ function loadImage(url) {
 }
 
 var uShowType;
-var showTypeV = 0;
+
+var uProjMat;
 
 
 async function start() {
@@ -206,9 +225,8 @@ async function start() {
 
 
     // ============ proj ============
-    glMatrix.mat4.perspective(projMat, 90, 1, 0.01, 100);
-    var uProjMat = gl.getUniformLocation(program, 'uProjMat');
-    gl.uniformMatrix4fv(uProjMat, false, projMat);
+    uProjMat = gl.getUniformLocation(program, 'uProjMat');
+
     gl.enable(gl.DEPTH_TEST);
 
     uShowType = gl.getUniformLocation(program, 'uShowType');
@@ -223,7 +241,7 @@ async function start() {
 
 function update() {
 
-    gl.uniform1i(uShowType, showTypeV);
+    gl.uniform1i(uShowType, config.shadingType);
 
     // rotate
     glMatrix.mat4.rotateY(modelMat, modelMat, 0.01);
@@ -231,6 +249,9 @@ function update() {
     // glMatrix.mat4.fromYRotation(rotationYMat, rotateY);
     // glMatrix.mat4.multiply(modelMat, modelMat, rotationYMat);
     gl.uniformMatrix4fv(uModelMat, false, modelMat);
+
+    glMatrix.mat4.perspective(projMat, config.fov, 1, 0.01, 100);
+    gl.uniformMatrix4fv(uProjMat, false, projMat);
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -389,14 +410,5 @@ function createBox(options) {
 };
 
 
-function showType(type) {
-    var btns = document.getElementsByTagName('button');
-    for(var i = 0; i < btns.length; i++) {
-        var btn = btns[i];
-        btn.style.backgroundColor = 'gray';
-    }
-    console.log(type);
-    showTypeV = type;
-}
 start();
 
