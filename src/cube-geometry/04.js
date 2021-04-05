@@ -8,12 +8,18 @@ var gui = new dat.GUI();
 var config = {
     fov: 86,
     Shading: 'Phong',
+    shinness: 40.0,
     shadingType: 2,
+    autoRotateX: true,
+    autoRotateY: true,
+
 };
 gui.add(config, 'fov').min(84).max(88).step(0.01).onChange(function(v) {
     fov = v;
 });
-var ShadingCtrl = gui.add(config, 'Shading', ["Lambert", "half Lambert", "Phong", "Blinn Phong"]).onChange(function(v) {
+gui.add(config, 'autoRotateX');
+gui.add(config, 'autoRotateY');
+gui.add(config, 'Shading', ["Lambert", "half Lambert", "Phong", "Blinn Phong"]).onChange(function(v) {
     console.log(v);
     var mapping = { 
         'Lambert': 0,
@@ -23,6 +29,9 @@ var ShadingCtrl = gui.add(config, 'Shading', ["Lambert", "half Lambert", "Phong"
     }
     config.shadingType = mapping[v];
 });
+gui.add(config, 'shinness', 20.0, 100.0);
+
+
 
 
 
@@ -61,6 +70,7 @@ precision mediump float;
 
 uniform sampler2D uTexture;
 uniform int uShowType;
+uniform float uShinness;
 
 varying vec3 vWorldPosition;
 varying vec3 vNormal; // normal vec is lookat inside.
@@ -85,11 +95,11 @@ float getHighlight(bool isBlinn) {
         vec3 eyeDir = normalize(eyePosition - vWorldPosition);
         vec3 lightDir = normalize(vLightPosition - vWorldPosition);
         vec3 halfVec = normalize(eyeDir + lightDir);
-        highlight = pow(max(dot(halfVec, -n), 0.0), 40.0);
+        highlight = pow(max(dot(halfVec, -n), 0.0), uShinness);
     } else {
         vec3 ref = reflect(normalize(vWorldPosition - vLightPosition), n);
         vec3 eyeDir = normalize(eyePosition - vWorldPosition);
-        highlight = pow(max(dot(ref, eyeDir), 0.0), 40.0);
+        highlight = pow(max(dot(ref, eyeDir), 0.0), uShinness);
     }
  
     return highlight;
@@ -160,6 +170,7 @@ function loadImage(url) {
 }
 
 var uShowType;
+var uShinness;
 
 var uProjMat;
 
@@ -230,6 +241,7 @@ async function start() {
     gl.enable(gl.DEPTH_TEST);
 
     uShowType = gl.getUniformLocation(program, 'uShowType');
+    uShinness = gl.getUniformLocation(program, 'uShinness');
 
 
     var image = await loadImage(url);
@@ -242,10 +254,18 @@ async function start() {
 function update() {
 
     gl.uniform1i(uShowType, config.shadingType);
+    gl.uniform1f(uShinness, config.shinness);
 
     // rotate
-    glMatrix.mat4.rotateY(modelMat, modelMat, 0.01);
-    glMatrix.mat4.rotateX(modelMat, modelMat, 0.005);
+    if (config.autoRotateX) {
+        glMatrix.mat4.rotateX(modelMat, modelMat, 0.005);
+    }
+
+    if (config.autoRotateY) {
+        glMatrix.mat4.rotateY(modelMat, modelMat, 0.01);
+    }
+
+
     // glMatrix.mat4.fromYRotation(rotationYMat, rotateY);
     // glMatrix.mat4.multiply(modelMat, modelMat, rotationYMat);
     gl.uniformMatrix4fv(uModelMat, false, modelMat);
