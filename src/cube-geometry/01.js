@@ -1,5 +1,15 @@
+
 const canvas = document.getElementById('canvas');
 const renderer = new WebGLRenderer(canvas);
+
+var gui = new dat.GUI();
+var config = {
+    'cull_face': false,
+    'depth': false
+}
+
+gui.add(config, 'cull_face');
+gui.add(config, 'depth');
 
 const V_SHADER_DATA = `
 attribute vec3 a_position;
@@ -117,11 +127,6 @@ function start() {
     update();
 }
 
-let depthBtn = document.getElementById('depth');
-let cullBtn = document.getElementById('cull');
-let depthState = false;
-let cullState = false;
-
 let rad = 0.0;
 function update() {
     const {gl, program} = renderer;
@@ -129,7 +134,7 @@ function update() {
     gl.uniform1f(uRad, rad += 0.01);
 
     // face cull
-    if (cullState) {
+    if (config['cull_face']) {
         gl.enable(gl.CULL_FACE);
         // gl.frontFace(gl.CCW);
         gl.frontFace(gl.CW);
@@ -138,7 +143,7 @@ function update() {
     }
 
     // depth test
-    if (depthState) {
+    if (config['depth']) {
         gl.enable(gl.DEPTH_TEST);
         gl.depthFunc(gl.LEQUAL);
     } else {
@@ -149,24 +154,6 @@ function update() {
     gl.drawElements(gl.LINES, index.length, gl.UNSIGNED_BYTE, 0);
     requestAnimationFrame(update);
 }
-
-depthBtn.addEventListener('click', function(e) {
-    depthState = !depthState;
-    if (depthState) {
-        depthBtn.innerText = 'disable depth'
-    } else {
-        depthBtn.innerText = 'enable depth'
-    }
-});
-
-cullBtn.addEventListener('click', function(e) {
-    cullState = !cullState;
-    if (cullState) {
-        cullBtn.innerText = 'disable cull-face';
-    } else {
-        cullBtn.innerText = 'enable cull-face';
-    }
-});
 
 
 
