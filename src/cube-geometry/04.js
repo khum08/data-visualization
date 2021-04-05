@@ -21,7 +21,6 @@ gui.add(config, 'autoRotateX');
 gui.add(config, 'autoRotateY');
 gui.add(config, 'wireframe');
 gui.add(config, 'Shading', ["Lambert", "half Lambert", "Phong", "Blinn Phong"]).onChange(function(v) {
-    console.log(v);
     var mapping = { 
         'Lambert': 0,
         'half Lambert': 1,
