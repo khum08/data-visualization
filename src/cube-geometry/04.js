@@ -12,13 +12,14 @@ var config = {
     shadingType: 2,
     autoRotateX: true,
     autoRotateY: true,
-
+    wireframe: false
 };
 gui.add(config, 'fov').min(84).max(88).step(0.01).onChange(function(v) {
     fov = v;
 });
 gui.add(config, 'autoRotateX');
 gui.add(config, 'autoRotateY');
+gui.add(config, 'wireframe');
 gui.add(config, 'Shading', ["Lambert", "half Lambert", "Phong", "Blinn Phong"]).onChange(function(v) {
     console.log(v);
     var mapping = { 
@@ -71,6 +72,7 @@ precision mediump float;
 uniform sampler2D uTexture;
 uniform int uShowType;
 uniform float uShinness;
+uniform bool uWireframe;
 
 varying vec3 vWorldPosition;
 varying vec3 vNormal; // normal vec is lookat inside.
@@ -142,7 +144,10 @@ void main() {
         vec3 rgb = color * (diffuse + highlight + ambient);
         gl_FragColor = vec4(1.0, 0.0, .0, 1.0);
     }
-    // gl_FragColor = vec4(1.0, 0.0, .0, 1.0);
+
+    if (uWireframe) {
+        gl_FragColor = vec4(1.0, 0.0, .0, 1.0);
+    }
 
 
 }
@@ -171,6 +176,7 @@ function loadImage(url) {
 
 var uShowType;
 var uShinness;
+var uWireframe;
 
 var uProjMat;
 
@@ -242,6 +248,7 @@ async function start() {
 
     uShowType = gl.getUniformLocation(program, 'uShowType');
     uShinness = gl.getUniformLocation(program, 'uShinness');
+    uWireframe = gl.getUniformLocation(program, 'uWireframe');
 
 
     var image = await loadImage(url);
@@ -265,6 +272,9 @@ function update() {
         glMatrix.mat4.rotateY(modelMat, modelMat, 0.01);
     }
 
+    // wireFrame
+    gl.uniform1i(uWireframe, config.wireframe);
+
 
     // glMatrix.mat4.fromYRotation(rotationYMat, rotateY);
     // glMatrix.mat4.multiply(modelMat, modelMat, rotationYMat);
@@ -276,7 +286,9 @@ function update() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    gl.drawArrays(gl.TRIANGLES, 0, 36);
+    if (!config.wireframe) {
+        gl.drawArrays(gl.TRIANGLES, 0, 36);
+    }
     gl.drawArrays(gl.LINES, 0, 36);
 
     requestAnimationFrame(update);
