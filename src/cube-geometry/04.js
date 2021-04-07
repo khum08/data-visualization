@@ -33,8 +33,6 @@ gui.add(config, 'shinness', 20.0, 100.0);
 
 
 
-
-
 var V_SHADER_DATA = `
 attribute vec3 aPosition;
 attribute vec3 aNormal;
