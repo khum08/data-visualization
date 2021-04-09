@@ -27,7 +27,16 @@ void main() {
 }
 `;
 
+const vertices = new Float32Array([
+
+]);
+
 function start() {
+    const vShader = createShader(gl, gl.VERTEX_SHADER, V_SHADER_DATA);
+    const fShader = createShader(gl, gl.FRAGMENT_SHADER, F_SHADER_DATA);
+
+    const program = initProgram(gl, vShader, fShader);
+    
     
 }
 
